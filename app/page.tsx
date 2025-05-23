@@ -33,6 +33,19 @@ export default function Home() {
   }
 
   const eliminarValG = async (id: number) => {
+      
+      const res = await fetch('/api/valg', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      })
+      const data = await res.json()
+    
+      setAuditoria((prev) => [...prev, data.eliminado])
+      fetchPerfiles()
+  }
+/*
+  const eliminarValG = async (id: number) => {
     setError(null)
   
     try {
@@ -52,7 +65,7 @@ export default function Home() {
       setError(err.message)
     }
   }
-
+*/
   const crearPerfilG = async () => {
     const res = await fetch('/api/perfilg', {
       method: 'POST',

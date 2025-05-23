@@ -27,16 +27,26 @@ export async function DELETE(req: NextRequest) {
     if (!valG) {
       return NextResponse.json({ error: 'ValG no encontrado' }, { status: 404 })
     }
-  
+
+    console.log("1" + valG.valor);
+    console.log("2" + valG.valor?.trim() );
+    console.log("3" + valG.valor?.trim() === '');
+
+    let obj1 = null;
+    //console.log(obj1.property);
     if (valG.valor?.trim() === '') {
-      return NextResponse.json({ error: 'Valor vacío no permitido' }, { status: 400 })
+        //let obj1 = null;
+        console.log(obj1.property);
+    //    return NextResponse.json({ error: 'Valor vacío no permitido' }, { status: 400 })
+    
     }
-  
+    
     await prisma.valG.delete({
       where: { id },
     })
+
+    
   
     return NextResponse.json({ eliminado: valG.valor?.toUpperCase() || 'SIN VALOR' })
   }
 
-  
