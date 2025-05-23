@@ -1,0 +1,46 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite" // puedes cambiar a postgresql o mysql
+  url      = "file:./dev.db"
+}
+
+model PerfilG {
+  id        Int       @id @default(autoincrement())
+  nombre    String
+  descripcion String?
+  perfilesL PerfilL[]
+  valoresG  ValG[]
+}
+
+model PerfilL {
+  id        Int       @id @default(autoincrement())
+  nombre    String
+  perfilG   PerfilG   @relation(fields: [perfilGId], references: [id])
+  perfilGId Int
+  valoresL  ValL[]
+}
+
+model ValG {
+  id        Int       @id @default(autoincrement())
+  clave     String
+  valor     String?
+  perfilG   PerfilG   @relation(fields: [perfilGId], references: [id])
+  perfilGId Int
+}
+
+model ValL {
+  id         Int      @id @default(autoincrement())
+  clave      String
+  valor      String?
+  perfilL    PerfilL  @relation(fields: [perfilLId], references: [id])
+  perfilLId  Int
+}
