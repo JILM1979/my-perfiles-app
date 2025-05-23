@@ -36,7 +36,7 @@ export async function DELETE(req: NextRequest) {
     //console.log(obj1.property);
     if (valG.valor?.trim() === '') {
         //let obj1 = null;
-        console.log(obj1.property);
+       // console.log(obj1.property);
     //    return NextResponse.json({ error: 'Valor vacío no permitido' }, { status: 400 })
     
     }
