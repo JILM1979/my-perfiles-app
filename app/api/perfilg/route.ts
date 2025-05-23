@@ -16,8 +16,16 @@ export async function POST(req: NextRequest) {
 
 // GET: obtener todos los PerfilG
 export async function GET() {
+/*
   const perfiles = await prisma.perfilG.findMany({
     orderBy: { id: 'asc' },
+  })
+*/
+  const perfiles = await prisma.perfilG.findMany({
+    orderBy: { id: 'asc' },
+    include: {
+      valoresG: true, // <--- añadir esto
+    },
   })
   return NextResponse.json(perfiles)
 }

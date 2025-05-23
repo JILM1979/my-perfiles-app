@@ -2,17 +2,28 @@
 
 import { useEffect, useState } from 'react'
 
+
+type ValG = {
+  id: number
+  clave: string
+  valor: string | null
+}
+
 type PerfilG = {
   id: number
   nombre: string
   descripcion: string | null
+  valoresG: ValG[]
 }
+
 
 export default function Home() {
   const [nombre, setNombre] = useState('')
   const [descripcion, setDescripcion] = useState('')
   const [perfiles, setPerfiles] = useState<PerfilG[]>([])
-
+  const [expandido, setExpandido] = useState<number | null>(null)
+  const [nuevoValor, setNuevoValor] = useState<Record<number, { clave: string; valor: string }>>({})
+  
   const fetchPerfiles = async () => {
     const res = await fetch('/api/perfilg')
     const data = await res.json()
@@ -30,6 +41,25 @@ export default function Home() {
       setDescripcion('')
       fetchPerfiles() // Recargar lista tras crear
     }
+  }
+
+  const crearValG = async (perfilGId: number) => {
+    const datos = nuevoValor[perfilGId]
+    if (!datos?.clave) return
+  
+    await fetch('/api/valg', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        clave: datos.clave,
+        valor: datos.valor,
+        perfilGId,
+      }),
+    })
+  
+    // Limpiar campos
+    setNuevoValor((prev) => ({ ...prev, [perfilGId]: { clave: '', valor: '' } }))
+    fetchPerfiles()
   }
 
   useEffect(() => {
@@ -62,12 +92,76 @@ export default function Home() {
 
       <h2 className="text-xl font-semibold mb-2">PerfilesG existentes</h2>
       <ul className="space-y-2">
-        {perfiles.map((perfil) => (
-          <li key={perfil.id} className="border p-3 rounded">
-            <strong>{perfil.nombre}</strong>
-            <div className="text-sm text-gray-600">{perfil.descripcion}</div>
-          </li>
-        ))}
+        
+
+{perfiles.map((perfil) => (
+  <li key={perfil.id} className="border p-4 rounded space-y-2">
+    <div className="flex items-center justify-between">
+      <div>
+        <strong>{perfil.nombre}</strong>
+        <div className="text-sm text-gray-600">{perfil.descripcion}</div>
+      </div>
+      <button
+        className="text-blue-600 text-sm underline"
+        onClick={() =>
+          setExpandido((prev) => (prev === perfil.id ? null : perfil.id))
+        }
+      >
+        {expandido === perfil.id ? 'Ocultar valores' : 'Ver valores'}
+      </button>
+    </div>
+
+    {expandido === perfil.id && (
+      <div className="pl-4">
+        <ul className="mb-2 space-y-1">
+          {perfil.valoresG.length === 0 && <li className="text-gray-400">Sin valores</li>}
+          {perfil.valoresG.map((val) => (
+            <li key={val.id} className="text-sm">
+              🔹 <strong>{val.clave}</strong>: {val.valor}
+            </li>
+          ))}
+        </ul>
+
+        <div className="flex gap-2 mb-2">
+          <input
+            className="border p-1 text-sm"
+            placeholder="Clave"
+            value={nuevoValor[perfil.id]?.clave || ''}
+            onChange={(e) =>
+              setNuevoValor((prev) => ({
+                ...prev,
+                [perfil.id]: {
+                  ...prev[perfil.id],
+                  clave: e.target.value,
+                },
+              }))
+            }
+          />
+          <input
+            className="border p-1 text-sm"
+            placeholder="Valor"
+            value={nuevoValor[perfil.id]?.valor || ''}
+            onChange={(e) =>
+              setNuevoValor((prev) => ({
+                ...prev,
+                [perfil.id]: {
+                  ...prev[perfil.id],
+                  valor: e.target.value,
+                },
+              }))
+            }
+          />
+          <button
+            className="bg-green-500 text-white px-2 text-sm rounded"
+            onClick={() => crearValG(perfil.id)}
+          >
+            Añadir
+          </button>
+        </div>
+      </div>
+    )}
+  </li>
+))}
       </ul>
     </main>
   )
